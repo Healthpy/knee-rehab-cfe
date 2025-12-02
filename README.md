@@ -76,9 +76,6 @@ python train_fcn.py --movement gait --epochs 50
 # Run comprehensive experiments
 python scripts/run_comprehensive_experiments.py
 
-# Generate paper results and tables
-python scripts/generate_paper_results.py
-
 # Run XAI analysis for specific movement
 python scripts/run_analysis.py --movement-type squat --log-level INFO
 ```
