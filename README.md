@@ -183,7 +183,7 @@ Each sensor provides 3-axis accelerometer + 3-axis gyroscope = 6 channels per se
 
 The following heatmap compares the modality group activation patterns between our Learnable Gate (LG) method and the M-CELS baseline across different exercise types:
 
-![Modality Group Activation Comparison](results\experiments\exercise_specific\exercise_modality_activation_heatmap.png)
+![Modality Group Activation Comparison](results/experiments/exercise_specific/exercise_modality_activation_heatmap.png)
 
 *Figure 2: Comparison of modality group activation frequencies between LG (SHAP pruned) and M-CELS methods across exercise types (Squat, Extension, Gait). The heatmap shows activation percentages for each sensor modality group (RF, HAM, TA, GAS with accelerometer/gyroscope splits for left/right sides), demonstrating LG's superior group sparsity with more selective sensor activation.*
 
