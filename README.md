@@ -125,7 +125,7 @@ Trainable gates θ_g control sensor group relevance with sigmoid activation. Gat
 
 The following example demonstrates how our approach generates counterfactual explanations for gait correction, transforming "Walking - No full extension" to "Walking - Correct" by modifying specific sensor channels:
 
-![Counterfactual Example: Gait Correction](results\evaluation\learnable_gate\visualizations\example_1_class7_to_6.png)
+![Counterfactual Example: Gait Correction](results/evaluation/learnable_gate/visualizations/example_1_class7_to_6.png)
 
 *Figure 1: Time-series visualization showing counterfactual transformation from incorrect gait (no full extension) to correct walking pattern. The plot shows accelerometer (left) and gyroscope (right) data across 8 IMU sensors, with original data in blue, counterfactual in green, and perturbation mask highlighting modified regions.*
 
