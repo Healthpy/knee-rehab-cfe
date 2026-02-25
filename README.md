@@ -190,7 +190,7 @@ The following heatmap compares the modality group activation patterns between ou
 ## 🏗️ Project Structure
 
 ```
-├── src/src/
+├── src/
 │   ├── architectures/    # Neural network models (FCN, TCN)
 │   ├── models/           # Training and evaluation scripts
 │   ├── explainer/        # Counterfactual generation methods
