@@ -1,0 +1,16 @@
+Metric,Value
+Success Rate (%),90.0
+Average Confidence (%),86.3129711340494
+Average Iterations,181.3
+Average Time (s),4.682196879386902
+Average IMU L2,75.24918076169766
+Average IMU Changed (%),42.220348510399106
+Average IMU Channels Changed,27.0
+Average Sensor Groups Changed (/8),6.6
+Average Modality Groups Changed (/16),9.0
+Method,Shapley-Adaptive
+Split,Subject-disjoint
+Model,best_fcn_imu_subject_split.pth
+SHAP Ranking,Enabled
+Group Level,modality
+Group Ratio,0.6

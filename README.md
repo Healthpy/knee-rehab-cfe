@@ -1,6 +1,6 @@
-# 🤖 Rehab-CfE: An Adaptive Multi-Objective Framework for Group-Based Counterfactual Explanations in Rehabilitation
+# Adaptive Group-Based Counterfactual Explanations for Time-Series Rehabilitation Data
 
-This repository implements an **adaptive multi-objective framework** for generating **group-based counterfactual explanations** in multivariate time series data, specifically designed for sensor-guided rehabilitation applications. Our approach addresses the critical need for clinically interpretable AI explanations in healthcare by integrating domain-informed sensor grouping with dynamic optimization techniques.
+This repository implements an **adaptive group-based counterfactual explanation framework** for multivariate time series, specifically designed for IMU-based rehabilitation movement analysis. The framework addresses the challenge of generating clinically interpretable explanations by aligning counterfactuals with anatomical sensor groups (muscle-level IMU units) rather than individual channels, producing sparse, biomechanically coherent guidance for rehabilitation exercises.
 
 ## 🎯 Overview
 
@@ -11,26 +11,28 @@ Traditional counterfactual explanation methods for time series data operate at i
 - **Adaptive multi-objective optimization** balancing validity, sparsity, and plausibility
 - **Shapley-based feature ranking** for structured counterfactual generation
 
-## 📊 Key Contributions
+## Key Contributions
 
-### 🔬 Technical Innovations
-- **Adaptive Multi-Objective Framework**: Integrates Shapley-based group ranking with dynamic sensor selection
-- **Learnable Group Gates**: Automatic relevance determination for sensor groups during optimization
-- **Structured Feature Selection**: Domain-aligned grouping that reflects clinical understanding
-- **Dynamic Weight Management**: Adaptive loss weighting that evolves during optimization
+1. **Adaptive Multi-Objective Framework**: A two-stage approach combining Shapley-based group ranking with learnable gate mechanisms for structured counterfactual generation in high-dimensional IMU data
 
-### 📈 Performance Achievements
-- **67.6% channel sparsity** vs 0.0% for baseline M-CELS
-- **86% feature sparsity** vs 72% for M-CELS
-- Maintained comparable validity while significantly improving interpretability
-- Successfully identifies clinically relevant movement patterns
+2. **Learnable Gate (LG) Mechanism**: Trainable per-group relevance gates that are jointly optimized with perturbation masks, enabling automatic selection of sparse and clinically meaningful sensor groups
 
-## 🏥 Clinical Applications
+3. **Shapley-Adaptive (SA) Ablation**: Demonstrates that Shapley-based ranking alone maintains validity (77-93% across ratios 0.3-0.9) but fails to enforce group sparsity, motivating explicit learnable group selection
+
+4. **Comprehensive Evaluation on KneE-PAD**: On 8 IMU sensors (48 channels), 31 participants, 9 exercise error classes, LG (SHAP pruned) achieves:
+   - **27% better group sparsity** than M-CELS baseline (8.2 vs 11.2 modality groups)
+   - **94.7% validity** vs 90.0% for M-CELS
+   - **Faster generation time** (9.7s vs 10.0s)
+   - **Preserved temporal smoothness**
+
+5. **Exercise-Specific Analysis**: Group-structured counterfactuals yield muscle-specific clinical guidance for squat, knee extension, and gait rehabilitation tasks
+
+## Clinical Applications
 
 ### Movement Types Analyzed
-- **Squat**: Weight-shift and forward-lean error patterns
-- **Knee Extension**: Range-of-motion and lateral deviation errors  
-- **Gait**: Stance-phase and trajectory errors
+- **Squat**: Weight-shift (SquatWT) and forward-lean (SquatFL) error patterns
+- **Knee Extension**: No-full extension (ExtNF) and lateral-lean (ExtLL) errors  
+- **Gait**: No-full extension (GaitNF) and hip-abduction (GaitHA) errors
 
 ### Sensor Configuration
 - **8 IMU sensors** placed bilaterally on key muscle groups:
@@ -39,23 +41,21 @@ Traditional counterfactual explanation methods for time series data operate at i
   - Tibialis Anterior (TA)
   - Gastrocnemius (GAS)
 - **48 total channels** (8 sensors × 6 channels each: 3 accelerometer + 3 gyroscope)
-- **Grouping strategies**: Sensor-level (8 groups) and modality-level (16 groups)
+- **16 modality groups** (accelerometer and gyroscope separated per muscle)
+- **Sampling rate**: 148.148 Hz
 
-## 🛠️ Installation
+## Installation
 
 ### Prerequisites
 - Python 3.8+
-- PyTorch 1.8+
+- PyTorch 1.9+
+- CUDA-compatible GPU (recommended)
 
 ### Setup
 ```bash
-# Clone the repository
-git clone https://github.com/Healthpy/knee-rehab-cfe.git
-cd knee-rehab-cfe
-
 # Create conda environment
-conda create -n rehab-cfe python=3.8
-conda activate rehab-cfe
+conda create -n knee-rehab python=3.8
+conda activate knee-rehab
 
 # Install dependencies
 pip install -r requirements.txt
@@ -65,139 +65,188 @@ pip install -r requirements.txt
 
 ### Training Models
 ```bash
-# Train movement-specific FCN models
-python train_fcn.py --movement squat --epochs 50
-python train_fcn.py --movement extension --epochs 50  
-python train_fcn.py --movement gait --epochs 50
+# Train FCN model with subject-disjoint split
+python src/src/models/train_fcn_subject_split.py
+
+# Train with trial-based split
+python src/models/train_fcn_trial_split.py
+
+# Train TCN model
+python src/models/train_tcn.py
 ```
 
 ### Running Counterfactual Analysis
 ```bash
-# Run comprehensive experiments
-python scripts/run_comprehensive_experiments.py
+# Evaluate Learnable Gate method (subject split)
+python src/models/evaluate_fcn_imu_learnable_gate_subject_split.py
 
-# Run XAI analysis for specific movement
-python scripts/run_analysis.py --movement-type squat --log-level INFO
+# Evaluate Shapley-Adaptive method
+python src/models/evaluate_fcn_imu_sa_subject_split.py
+
+# Evaluate M-CELS baseline
+python src/models/evaluate_fcn_imu_mcels_subject_split.py
+
+# Run ablation study
+python src/models/ablation_study_paper_grade.py
+
+# Analyze exercise-specific patterns
+python src/models/analyze_exercise_specific_cfe.py
 ```
 
-### Visualization
-```bash
-# Visualize counterfactual results
-python visualize_counterfactuals.py --movement squat --method adaptive-mo
-
-# Compare different movements
-python compare_movements.py
-```
-
-## 📋 Core Methodology
+## Core Methodology
 
 ### 1. Shapley-Based Group Importance Ranking
-Our framework computes channel-level Shapley values and aggregates them to group level:
+Channel-level Shapley values are computed using GradientSHAP and aggregated to group level using maximum absolute value:
 
 ```python
-φ_g = (1/|g|) * Σ(φ_i for i in g)
+Φ_g = max_{i ∈ g} |φ_i|
 ```
 
-where `φ_g` represents group importance and `|g|` is the group size.
+The top-k groups are selected for optimization (k = ⌊r·K⌋, where r=0.8).
 
 ### 2. Multi-Objective Optimization
-The framework optimizes five complementary loss components:
+The framework optimizes four complementary loss components:
 
 ```python
-L_total = w₁*L_target + w₂*L_sparsity + w₃*L_smooth + w₄*L_group + w₅*L_gates
+L_total = w₁·L_target + w₂·L_sparsity + w₃·L_smooth + w₄·L_gates
 ```
 
-- **L_target**: Target class achievement
-- **L_sparsity**: Feature-level sparsity promotion  
-- **L_smooth**: Temporal coherence
-- **L_group**: Group-level structured selection
-- **L_gates**: Learnable gate regularization
+- **L_target**: Target class achievement (1 - p_target)
+- **L_sparsity**: Feature-level sparsity (L1 norm on mask)
+- **L_smooth**: Temporal coherence (total variation)
+- **L_gates**: Group gate regularization (L1 + binarization)
 
-### 3. Dynamic Group Gating
-Learnable gates `θ_g` control sensor group relevance:
+Weights are adapted dynamically based on target probability.
 
-```python
-M̃ = M ⊙ (Σ σ(θ_g) * G_g)
-```
-
-Groups with `σ(θ_g) < 0.5` are considered for removal during optimization.
+### 3. Learnable Group Gates
+Trainable gates θ_g control sensor group relevance with sigmoid activation. Gates are regularized to encourage sparsity and binary values (0 or 1). Post-optimization pruning removes groups with low gate values (< 0.3 threshold).
 
 ## 📊 Dataset: KneE-PAD
 
 ### Data Characteristics
-- **31 subjects** with left/right knee injuries
-- **3 rehabilitation exercises** with correct and incorrect variations
-- **IMU sampling**: 148.148 Hz (8 sensors × 6 channels = 48 total)
-- **sEMG sampling**: 1,259.259 Hz (8 channels)
+- **31 subjects** with knee pathologies (left/right knee injuries)
+- **3 rehabilitation exercises** with 3 execution types each (1 correct + 2 error variants)
+- **9 total classes** for classification
+- **IMU sampling**: 148.148 Hz (8 sensors × 6 channels = 48 channels)
+- **Subject-disjoint splits**: 70/15/15 train/val/test ratio
 
 ### Exercise Protocols
 | Exercise | Correct Execution | Error Variations |
 |----------|------------------|------------------|
-| **Squat** | Descend to chair, return to standing | Weight-shift (WT), Forward-lean (FL) |
-| **Extension** | Seated leg extension | No-full extension (NF), Lateral-lean (LL) |  
-| **Gait** | 3m walk, turn, return | No-full extension (NF), Hip-abduction (HA) |
+| **Squat** | Descend to chair, return to standing | Weight-shift (SquatWT), Forward-lean (SquatFL) |
+| **Extension** | Seated leg extension | No-full extension (ExtNF), Lateral-lean (ExtLL) |  
+| **Gait** | 3m walk, turn, return | No-full extension (GaitNF), Hip-abduction (GaitHA) |
+
+### Sensor Placement
+8 IMU sensors placed bilaterally on:
+- Rectus Femoris (RF) - right/left
+- Hamstrings (HAM) - right/left
+- Tibialis Anterior (TA) - right/left
+- Gastrocnemius (GAS) - right/left
+
+Each sensor provides 3-axis accelerometer + 3-axis gyroscope = 6 channels per sensor.
 
 ## 📈 Performance Results
 
-### Comparison with M-CELS Baseline
+### Comparison with M-CELS Baseline (n=150 test samples, subject-disjoint split)
 
-| Metric | M-CELS | Adaptive-MO | Improvement |
-|--------|--------|-------------|-------------|
-| **Channel Sparsity** | 0.0% | **67.6%** | +67.6% |
-| **Feature Sparsity** | 72% | **86%** | +14% |
-| **Validity** | 93.3% | 90.2% | -3.1% |
-| **L₂ Distance** | 13.4 | **11.0** | -18% |
+| Metric | M-CELS | LG (SHAP pruned) | Improvement |
+|--------|--------|------------------|-------------|
+| **Validity** | 90.0% | **94.7%** | +4.7% |
+| **Modality Group Sparsity** | 11.2 groups | **8.2 groups** | **-27%** |
+| **Channel Sparsity** | 23.2 channels | **18.0 channels** | -22% |
+| **Generation Time** | 10.0s | **9.7s** | -3% |
+| **Target Confidence** | **88.2%** | 80.8% | -7.4% |
 
-### Movement-Specific Results
+### Exercise-Specific Results
 
-| Movement | Validity | Feature Sparsity | Channel Sparsity | Generation Time |
-|----------|----------|------------------|------------------|-----------------|
-| **Squat** | 98.7% | 88% | 72.9% | 5.79s |
-| **Extension** | 93.3% | 87% | 68.6% | 9.37s |
-| **Gait** | 56.0% | 79% | 56.6% | 7.74s |
+| Exercise | Method | Validity | Modality Groups | Gen Time |
+|----------|--------|----------|-----------------|----------|
+| **Squat** | LG | 100% | 8.8 | 8.5s |
+|  | M-CELS | 100% | 13.3 | 9.0s |
+| **Extension** | LG | **86.3%** | 6.7 | 8.8s |
+|  | M-CELS | 79.5% | 9.7 | 8.9s |
+| **Gait** | LG | 100% | 10.1 | **7.0s** |
+|  | M-CELS | 100% | 15.2 | 10.9s |
+
+**Key finding**: LG achieves ~33% better group sparsity across all exercises, with particularly strong improvements on knee extension (+6.8% validity).
 
 ## 🏗️ Project Structure
 
 ```
-├── src/
-│   ├── core/           # Base classes and utilities
-│   ├── models/         # FCN model definitions  
-│   ├── explainers/     # Counterfactual algorithms
-│   ├── data/          # Data processing utilities
-│   ├── experiments/   # Experiment management
-│   └── evaluation/    # Metrics and analysis
-├── scripts/           # Execution scripts
-├── models/           # Trained model files
-├── results/          # Experimental results
-├── docs/            # Documentation and paper
-└── data/           # IMU and EMG datasets
+├── src/src/
+│   ├── architectures/    # Neural network models (FCN, TCN)
+│   ├── models/           # Training and evaluation scripts
+│   ├── explainer/        # Counterfactual generation methods
+│   ├── data/            # Data processing and loading
+│   ├── utils/           # Helper functions
+│   └── visualization/   # Plotting and view generation
+├── models/              # Pre-trained model checkpoints
+├── results/             # Experimental results and metrics
+│   ├── ablation/        # Ablation study results
+│   ├── evaluation/      # Method comparison results
+│   └── experiments/     # Exercise-specific analysis
+├── docs/                # Documentation and paper
+└── config/              # Configuration files
 ```
 
-## 🔬 Key Classes and Methods
+## 🔬 Key Methods
 
-### Core Framework
-- `AdaptiveMultiObjectiveExplainer`: Main counterfactual generation class
-- `ShapleyGroupRanker`: Computes group-level importance scores
-- `DynamicGroupGates`: Learnable relevance determination
-- `MultiObjectiveLoss`: Adaptive loss weighting system
-
-### Evaluation Metrics
-- `ValidityMetrics`: Target class achievement assessment
-- `SparsityMetrics`: Feature and channel-level sparsity
-- `PlausibilityMetrics`: LOF-based realism evaluation
-- `RobustnessMetrics`: Noise stability analysis
+### Counterfactual Explainers
+- **Learnable Gate (LG)**: Trainable group gates with SHAP initialization
+- **Shapley-Adaptive (SA)**: Static SHAP-based group ranking
+- **M-CELS Baseline**: Channel-level counterfactual generation
 
 ## 📚 Dependencies
 
-### Core Requirements
-```
-torch>=1.8.0
-numpy>=1.20.0
-pandas>=1.3.0
-scikit-learn>=1.0.0
-matplotlib>=3.3.0
-seaborn>=0.11.0
-tsinterpret>=0.1.0
-tslearn>=0.5.0
-shap>=0.41.0
-```
+Core libraries:
+- PyTorch >= 1.9.0
+- NumPy >= 1.21.0
+- pandas >= 1.3.0
+- scikit-learn >= 1.0.0
+- SHAP >= 0.41.0
+- matplotlib >= 3.4.0
+- seaborn >= 0.11.0
+
+See [requirements.txt](requirements.txt) for complete list.
+
+<!-- ## 🤝 Citation
+
+If you use this work, please cite: -->
+<!-- 
+```bibtex
+@article{chukwu2026adaptive,
+  title={Adaptive Group-Based Counterfactual Explanations for Time-Series Rehabilitation Data},
+  author={Chukwu, Emmanuel C. and Schouten, Rianne M. and Tabak, Monique and Pechenizkiy, Mykola},
+  journal={IEEE Conference Proceedings},
+  year={2026}
+}
+``` -->
+
+## 🔗 Related Work
+
+### Counterfactual Methods
+- **M-CELS** [Li et al., 2024]: Multivariate time-series counterfactuals
+- **CoMTE** [Ates et al., 2021]: Instance-based counterfactuals
+- **Native Guide** [Delaney et al., 2021]: Nearest unlike neighbor
+
+### Rehabilitation & IMU Analysis  
+- **KneE-PAD Dataset** [Kasnesis et al., 2025]: Knee rehabilitation IMU data
+- **IMU Calibration** [Bonfiglio et al., 2024]: Sensor-to-segment alignment
+- **Clinical IMU Analysis** [Routhier et al., 2020; Porciuncula et al., 2018]
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+<!-- ## 🙏 Acknowledgments
+
+- **KneE-PAD Dataset**: Kasnesis et al., 2025
+- **Eindhoven University of Technology**: Department of Mathematics and Computer Science
+- **University of Twente**: Biomedical Signals and Systems Group -->
+
+<!-- ## Contact
+
+**Emmanuel C. Chukwu** (e.c.chukwu@tue.nl)  
+Department of Mathematics and Computer Science
+Eindhoven University of Technology -->

@@ -127,8 +127,11 @@ data/raw/
 data/processed/
 data/synthetic/
 movement_data/
-M-CELS/
+src/src/data/
+src/src/visualization/
 docs/
+M-CELS/
+data/
 
 # Model files
 models/trained/
@@ -138,7 +141,6 @@ models/checkpoints/
 *.joblib
 
 # Results and outputs
-results/
 outputs/
 logs/
 *.log

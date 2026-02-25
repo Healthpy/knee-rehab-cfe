@@ -1,0 +1,20 @@
+\begin{table*}[t]
+\centering
+\caption{Exercise-Specific Counterfactual Performance: LG (SHAP pruned) vs M-CELS}
+\label{tab:exercise_specific}
+\begin{tabular}{llcccccc}
+\toprule
+Exercise & Method & Success & Confidence & Groups & Temp. Grad. & Time & L2 \\
+         &        & Rate (\%) & (\%) & Changed & & (s) & Distance \\
+\midrule
+Squat & LG (SHAP pruned) & 100.0 & 83.4 $\pm$ 10.6 & 8.8 $\pm$ 3.0 & 0.0166 & 7.2 $\pm$ 1.2 & 40.4 $\pm$ 20.6 \\
+ & M-CELS & 100.0 & 97.7 $\pm$ 0.9 & 13.3 $\pm$ 1.6 & 0.0111 & 6.9 $\pm$ 2.0 & 41.9 $\pm$ 8.5 \\
+\midrule
+Knee Extension & LG (SHAP pruned) & 86.3 & 87.6 $\pm$ 10.1 & 6.7 $\pm$ 2.9 & 0.0054 & 9.0 $\pm$ 8.9 & 48.4 $\pm$ 15.5 \\
+ & M-CELS & 79.5 & 98.2 $\pm$ 0.9 & 9.7 $\pm$ 2.3 & 0.0092 & 9.1 $\pm$ 2.0 & 47.7 $\pm$ 10.1 \\
+\midrule
+Gait & LG (SHAP pruned) & 100.0 & 88.3 $\pm$ 9.2 & 10.1 $\pm$ 1.6 & 0.0215 & 7.0 $\pm$ 1.6 & 56.9 $\pm$ 17.8 \\
+ & M-CELS & 100.0 & 98.1 $\pm$ 1.1 & 15.2 $\pm$ 1.1 & 0.0227 & 10.9 $\pm$ 1.6 & 60.1 $\pm$ 13.5 \\
+\bottomrule
+\end{tabular}
+\end{table*}

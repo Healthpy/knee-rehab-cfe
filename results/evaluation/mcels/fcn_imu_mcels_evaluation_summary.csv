@@ -1,0 +1,10 @@
+Metric,Value
+Success Rate (%),80.0
+Average Confidence (%),79.92202744901881
+Average Iterations,832.3
+Average Time (s),13.331153416633606
+Average IMU L2,41.15708179088016
+Average IMU Changed (%),3.397976391231029
+Average IMU Channels Changed,26.4
+Average Sensor Groups Changed (/8),6.5
+Average Modality Groups Changed (/16),11.9

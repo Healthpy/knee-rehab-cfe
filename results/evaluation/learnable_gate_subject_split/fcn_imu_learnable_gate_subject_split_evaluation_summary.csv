@@ -1,0 +1,17 @@
+Metric,Value
+Success Rate (%),93.33333333333333
+Average Confidence (%),81.21165651354143
+Average Iterations,617.7466666666667
+Average Time (s),8.53701646486918
+Average IMU L2,50.70097136546096
+Average IMU Changed (%),18.823730560239838
+Average IMU Channels Changed,19.673333333333332
+Average Sensor Groups Changed (/8),5.973333333333334
+Average Modality Groups Changed (/16),8.566666666666666
+Method,Learnable-Gate
+Split,Subject-disjoint
+Model,best_fcn_imu_subject_split.pth
+SHAP Ranking,Enabled
+Group Level,modality
+Group Ratio,0.8
+Prune Mode,adaptive

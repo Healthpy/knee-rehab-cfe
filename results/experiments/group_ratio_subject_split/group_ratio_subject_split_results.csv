@@ -1,0 +1,5 @@
+success_rate,avg_confidence,avg_l2,avg_channels,avg_sensor_groups,avg_modality_groups,avg_temporal_grad,avg_iterations,avg_time,total_time,method,ratio,n_groups_allowed,split,group_level,wall_time
+90.0000,88.1303,50.8848,23.7000,6.2000,11.0000,0.0142,706.3000,10.3853,103.8529,M-CELS,,16,subject_disjoint,modality,
+80.0000,69.1586,60.6707,18.0000,4.3000,6.0000,0.0609,179.5000,4.7359,47.3590,Shapley-Adaptive,0.4000,6,subject_disjoint,modality,47.4996
+80.0000,76.8438,75.3289,27.0000,6.6000,9.0000,0.1060,164.6000,4.0665,40.6647,Shapley-Adaptive,0.6000,9,subject_disjoint,modality,40.8216
+90.0000,88.7990,87.5122,48.0000,8.0000,16.0000,0.1683,171.6000,4.8572,48.5723,Shapley-Adaptive,1.0000,16,subject_disjoint,modality,48.7384

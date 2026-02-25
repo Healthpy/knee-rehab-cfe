@@ -1,0 +1,22 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run XAI Analysis",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"scripts/run_analysis.py",
+				"--movement-type",
+				"squat",
+				"--log-level",
+				"INFO"
+			],
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": [
+				"$python"
+			]
+		}
+	]
+}

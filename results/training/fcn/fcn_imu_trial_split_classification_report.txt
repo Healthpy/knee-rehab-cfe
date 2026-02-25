@@ -1,0 +1,18 @@
+FCN (IMU-Only, Trial-Split) - Classification Report
+======================================================================
+
+                             precision    recall  f1-score   support
+
+            Squat - Correct      0.897     0.985     0.939       133
+    Squat - Weight transfer      0.980     0.766     0.860        64
+Squat - Injured leg forward      1.000     1.000     1.000        71
+          Leg Ext - Correct      0.983     1.000     0.991        57
+      Leg Ext - Limited ROM      1.000     1.000     1.000        52
+     Leg Ext - Lifting limb      1.000     1.000     1.000        70
+          Walking - Correct      0.988     1.000     0.994        85
+     Walking - No extension      1.000     1.000     1.000        98
+    Walking - Hip abduction      1.000     0.990     0.995        96
+
+                   accuracy                          0.975       726
+                  macro avg      0.983     0.971     0.975       726
+               weighted avg      0.977     0.975     0.974       726

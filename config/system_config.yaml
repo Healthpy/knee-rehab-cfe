@@ -1,0 +1,201 @@
+# KneE-PAD System Configuration
+
+# Data Processing
+data:
+  sampling_rate:
+    emg: 1259.26  # Hz - Delsys Trigno Avanti EMG sampling rate
+    imu: 148.15   # Hz - Delsys Trigno Avanti IMU sampling rate
+  temporal_points: 100  # Normalize to 100 time points
+  normalization: percentage  # 'percentage' or 'absolute'
+  filter_cutoff: 10.0  # Hz
+  
+  # Channel configuration (8 Delsys Trigno Avanti sensors)
+  channels:
+    n_imu: 48  # 8 sensors × 6 channels (3 accel + 3 gyro)
+    n_emg: 8   # 8 sensors × 1 EMG channel each
+    total: 56  # 8 sensors × 7 channels (1 EMG + 6 IMU)
+  
+  # Sensor placements
+  sensors:
+    count: 8
+    placements:
+      - "Right Rectus Femoris"
+      - "Right Hamstrings"
+      - "Right Tibialis Anterior"
+      - "Right Gastrocnemius"
+      - "Left Rectus Femoris"
+      - "Left Hamstrings"
+      - "Left Tibialis Anterior"
+      - "Left Gastrocnemius"
+  
+  # Segmentation
+  segmentation:
+    method: gyro_peak  # 'gyro_peak', 'manual', 'accel_threshold'
+    min_rep_duration: 0.5  # seconds
+    max_rep_duration: 5.0  # seconds
+    prominence: 0.5
+
+# Model Configuration
+model:
+  type: tcn  # 'tcn', 'transformer', 'shapelet'
+  
+  # TCN parameters
+  tcn:
+    num_levels: 4
+    kernel_size: 3
+    hidden_dim: 64
+    dropout: 0.2
+  
+  # Transformer parameters
+  transformer:
+    d_model: 128
+    nhead: 8
+    num_layers: 4
+    dim_feedforward: 256
+    dropout: 0.1
+  
+  # Training
+  training:
+    epochs: 50
+    batch_size: 32
+    learning_rate: 0.001
+    weight_decay: 0.00001
+    validation_split: 0.2
+  
+  # Classes (9 exercise variations: 3 exercises × 3 execution types)
+  classes:
+    n_classes: 9
+    class_names:
+      - "Squat - Correct"                          # Label 0
+      - "Squat - Weight transfer to healthy leg"   # Label 1
+      - "Squat - Injured leg forward"              # Label 2
+      - "Leg Extension - Correct"                  # Label 3
+      - "Leg Extension - Limited ROM"              # Label 4
+      - "Leg Extension - Lifting other limb"       # Label 5
+      - "Walking - Correct"                        # Label 6
+      - "Walking - Without full extension"         # Label 7
+      - "Walking - Hip abduction"                  # Label 8
+    correct_labels: [0, 3, 6]  # Indices of correct executions
+    target_class: 0  # Default: Correct squat
+
+# Counterfactual Generation
+counterfactual:
+  method: gradient  # 'gradient', 'genetic', 'prototype'
+  
+  # Optimization parameters
+  optimization:
+    max_iterations: 1000
+    learning_rate: 0.01
+    early_stop_confidence: 0.95
+    lambda_sparse: 0.1
+    lambda_smooth: 0.05
+  
+  # Constraints
+  constraints:
+    type: physiological  # 'physiological', 'none'
+    
+    # Temporal constraints
+    temporal:
+      phase_aware: true
+      smoothness_penalty: 0.1
+    
+    # Channel constraints
+    channel:
+      enforce_bounds: true
+      max_delta_imu: 50.0  # deg/s for gyro
+      max_delta_emg: 0.3   # normalized
+    
+    # Phase-specific constraints (example for squat exercise)
+    phases:
+      - name: descent
+        range: [0, 30]
+        allowed_channels: [4, 11, 18, 25]  # Right leg gyro Y channels (sensors 0-3)
+        max_change: 0.5
+      
+      - name: bottom
+        range: [40, 70]
+        allowed_channels: [0, 7, 14, 21, 28, 35]  # EMG channels (quad + hamstrings, bilateral)
+        max_change: 0.8
+      
+      - name: ascent
+        range: [70, 100]
+        allowed_channels: [12, 13]  # Quad, Hamstring
+        max_change: 0.4
+
+# Visualization
+visualization:
+  # Patient view
+  patient:
+    channels_shown:
+      - knee_angle
+      - quad_emg
+    highlight_threshold: 0.3
+    color_scheme: accessible  # 'accessible', 'standard'
+  
+  # Coaching view
+  coaching:
+    progress_bar: true
+    directional_cues: true
+    cue_advance_time: 0.2  # seconds
+    max_concurrent_cues: 1
+  
+  # Clinician view
+  clinician:
+    show_all_channels: true
+    heatmap_resolution: [100, 20]  # [time, channels]
+    top_k_channels: 10
+
+# Real-Time Feedback
+feedback:
+  mode: visual  # 'visual', 'audio', 'haptic', 'combined'
+  
+  # Timing
+  timing:
+    cue_advance_time: 0.2  # seconds
+    cue_duration: 2.0      # seconds
+    movement_duration: 3.0  # default expected duration
+  
+  # Adaptive feedback
+  adaptive:
+    enabled: true
+    learning_rate: 0.1
+    min_feedback_level: 0.3
+  
+  # AR/VR integration
+  ar_interface:
+    protocol: websocket  # 'websocket', 'http', 'mqtt'
+    address: localhost:8080
+    update_rate: 30  # Hz
+
+# Evaluation
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+  
+  counterfactual_quality:
+    - minimality
+    - plausibility
+    - stability
+  
+  visualization_effectiveness:
+    - comprehension_time
+    - error_reduction
+    - clinician_agreement
+
+# Logging
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR
+  save_sessions: true
+  session_dir: data/sessions
+  log_file: logs/kneepad.log
+
+# Paths
+paths:
+  data_dir: data/raw
+  processed_dir: data/processed
+  models_dir: models
+  results_dir: results
+  visualizations_dir: visualizations

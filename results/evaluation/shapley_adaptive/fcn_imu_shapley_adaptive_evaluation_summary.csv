@@ -1,0 +1,13 @@
+Metric,Value
+Success Rate (%),80.0
+Average Confidence (%),79.54653065982711
+Average Iterations,163.9
+Average Time (s),5.292234134674072
+Average IMU L2,63.16475015200923
+Average IMU Changed (%),47.42341202922991
+Average IMU Channels Changed,27.0
+Average Sensor Groups Changed (/8),5.5
+Average Modality Groups Changed (/16),9.0
+Method,Shapley-Adaptive
+SHAP Ranking,Enabled
+Group Level,modality

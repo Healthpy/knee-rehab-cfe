@@ -1,0 +1,14 @@
+Metric,Value
+Success Rate (%),83.33333333333334
+Average Confidence (%),73.17394456122808
+Average Iterations,656.1
+Average Time (s),11.532375319798787
+Average IMU L2,61.535995207916606
+Average IMU Changed (%),29.57033445756043
+Average IMU Channels Changed,24.366666666666667
+Average Sensor Groups Changed (/8),5.9
+Average Modality Groups Changed (/16),8.933333333333334
+Method,Learnable-Gate
+SHAP Ranking,Disabled
+Group Level,modality
+Prune Mode,adaptive

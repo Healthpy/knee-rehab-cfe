@@ -1,0 +1,13 @@
+Metric,Value
+Success Rate (%),90.0
+Average Confidence (%),88.24979944745371
+Average Iterations,679.3
+Average Time (s),8.676754743258158
+Average IMU L2,45.7728594996859
+Average IMU Changed (%),3.8659827618512272
+Average IMU Channels Changed,23.246666666666666
+Average Sensor Groups Changed (/8),6.3933333333333335
+Average Modality Groups Changed (/16),11.173333333333334
+Method,M-CELS
+Split,Subject-disjoint
+Model,best_fcn_imu_subject_split.pth

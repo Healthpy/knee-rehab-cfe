@@ -1,0 +1,42 @@
+
+============================================================
+SQUAT
+============================================================
+
+Most frequently modified groups (LG):
+RF_L_gyr, Ham_L_gyr, TA_L_acc, Gast_L_acc, Gast_R_acc, TA_R_acc
+
+Biomechanical Interpretation:
+Squat corrections emphasize bilateral quadriceps (RF) and hamstrings (Ham)
+for symmetric knee flexion control and rotational stability. Modifications
+to both accelerometer and gyroscope signals indicate corrections to both
+linear and angular motion patterns, ensuring balanced weight distribution
+during descent and ascent phases.
+
+============================================================
+KNEE EXTENSION
+============================================================
+
+Most frequently modified groups (LG):
+Gast_R_acc, TA_L_acc, RF_L_acc, Gast_L_acc, Ham_R_acc, RF_R_acc
+
+Biomechanical Interpretation:
+Knee extension corrections highlight injured-side quadriceps (RF) engagement
+and reduced hamstring co-contraction to address range-of-motion deficits.
+Tibialis anterior (TA) and gastrocnemius (Gast) modifications suggest
+adjustments to ankle stabilization during the extension phase, preventing
+compensatory movements that limit full knee extension.
+
+============================================================
+GAIT
+============================================================
+
+Most frequently modified groups (LG):
+RF_R_gyr, TA_R_gyr, Gast_L_gyr, TA_R_acc, Gast_L_acc, Gast_R_gyr
+
+Biomechanical Interpretation:
+Gait corrections involve coordinated quadriceps-hamstrings control during
+stance phase and tibialis anterior-gastrocnemius activation for swing
+clearance and push-off. High activation across all bilateral muscle groups
+reflects the complex inter-limb coordination required for normal gait
+kinematics, particularly in correcting asymmetric loading patterns.
