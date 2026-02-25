@@ -121,6 +121,14 @@ Weights are adapted dynamically based on target probability.
 ### 3. Learnable Group Gates
 Trainable gates θ_g control sensor group relevance with sigmoid activation. Gates are regularized to encourage sparsity and binary values (0 or 1). Post-optimization pruning removes groups with low gate values (< 0.3 threshold).
 
+### Example: Counterfactual Explanation in Action
+
+The following example demonstrates how our approach generates counterfactual explanations for gait correction, transforming "Walking - No full extension" to "Walking - Correct" by modifying specific sensor channels:
+
+![Counterfactual Example: Gait Correction](results\evaluation\learnable_gate\visualizations\example_1_class7_to_6.png)
+
+*Figure 1: Time-series visualization showing counterfactual transformation from incorrect gait (no full extension) to correct walking pattern. The plot shows accelerometer (left) and gyroscope (right) data across 8 IMU sensors, with original data in blue, counterfactual in green, and perturbation mask highlighting modified regions.*
+
 ## 📊 Dataset: KneE-PAD
 
 ### Data Characteristics
@@ -170,6 +178,14 @@ Each sensor provides 3-axis accelerometer + 3-axis gyroscope = 6 channels per se
 |  | M-CELS | 100% | 15.2 | 10.9s |
 
 **Key finding**: LG achieves ~33% better group sparsity across all exercises, with particularly strong improvements on knee extension (+6.8% validity).
+
+### Visual Comparison: Modality Group Activation
+
+The following heatmap compares the modality group activation patterns between our Learnable Gate (LG) method and the M-CELS baseline across different exercise types:
+
+![Modality Group Activation Comparison](results\experiments\exercise_specific\exercise_modality_activation_heatmap.png)
+
+*Figure 2: Comparison of modality group activation frequencies between LG (SHAP pruned) and M-CELS methods across exercise types (Squat, Extension, Gait). The heatmap shows activation percentages for each sensor modality group (RF, HAM, TA, GAS with accelerometer/gyroscope splits for left/right sides), demonstrating LG's superior group sparsity with more selective sensor activation.*
 
 ## 🏗️ Project Structure
 
